@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <transition>
+    <transition name="fade">
       <list
         v-show="!current"
         @goodClick="handleGoodClick"
       />
     </transition>
-    <transition>
+    <transition  name="fade">
       <detail
         v-show="current"
         @backClick="changePage"
@@ -50,5 +50,11 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+.fade-enter-active, .fade-leave-active {
+  // transition: opacity .2s;
+}
+.fade-enter, .fade-leave-to {
+  // opacity: 0;
 }
 </style>
