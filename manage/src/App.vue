@@ -44,10 +44,13 @@
 		/>
     <deleteModal
 			:showModal="modalManage.delete"
+      :data="activeItem"
 			modalName="delete"
 			@modalManage="modalManageMethod"
+      @handleDeleteSuccess="getMenuList"
 		/>
     <editFolderModal
+      :item="currentClick"
 			:showModal="modalManage.edit"
 			modalName="edit"
 			@modalManage="modalManageMethod"
@@ -76,14 +79,7 @@ export default {
         edit: false,
         delete: false,
 			},
-      menuList: [
-        { id: 1, name: '项目1', },
-        { id: 2, name: '项目2', },
-        { id: 3, name: '项目3', },
-        { id: 4, name: '项目4', },
-        { id: 5, name: '项目5', },
-        { id: 6, name: '项目6', },
-      ],
+      menuList: [],
       activeItem: {},
       currentClick: {},
     }
@@ -100,7 +96,23 @@ export default {
     },
     getMenuList() {
       // 获取远程数据
-      this.activeItem = { id: 1, name: '项目1', };
+      // this.activeItem = { id: 1, name: '项目1', };
+      // return;
+      this.$axios.post(this.$url.getList, { id: -1 }).then((res) => {
+          if(res.data.code == 0) {
+              this.menuList = res.data.result.map((item) => {
+                return {
+                  ...item,
+                  name: item.labelName
+                }
+              })
+              this.activeItem = this.menuList[0] || {}
+          } else {
+              this.$Message.error('查询失败')
+          }
+      }).catch((err) => {
+          this.$Message.error('未知错误，联系管理员')
+      })
     },
     handleEdit(item) {
       this.currentClick = item;

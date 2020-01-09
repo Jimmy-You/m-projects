@@ -46,17 +46,23 @@
 			</Row>
 		</div>
 		<addModal
+			:level="level"
+			:parentId="level > 2 ? breadList[breadList.length - 1].id : menuItem.id"
 			:showModal="modalManage.add"
 			modalName="add"
 			:addTypeProp="fileList.length ? fileList[0].type == 1 ? '1' : '2' : ''"
 			@modalManage="modalManageMethod"
 		/>
 		<editProductModal
+			:item="activeItem"
 			:showModal="modalManage.edit"
+			:faItem="breadList[0] ? breadList[breadList.length - 1] : menuItem"
 			modalName="edit"
 			@modalManage="modalManageMethod"
 		/>
 		<editFolderModal
+			:item="activeItem"
+			:level="level"
 			:showModal="modalManage.editFolder"
 			modalName="editFolder"
 			@modalManage="modalManageMethod"
@@ -65,6 +71,7 @@
 			:showModal="modalManage.delete"
 			modalName="delete"
 			@modalManage="modalManageMethod"
+			@handleDeleteSuccess="getDataList"
 		/>
 	</div>
 </template>
@@ -116,8 +123,10 @@ export default {
 	},
 	data() {
 		return {
+			currentDir: {},
 			fileList: firtList,
 			activeItem: {}, // 当前选中的项目
+			level: 2, // 默认的展现目录层级
 			modalManage: {
 				add: false,
 				edit: false,
@@ -143,18 +152,24 @@ export default {
 		},
 		// 展开下一层级
 		handleGoDown(item) {
+			if(!item.type) return; // 如果不是目录 则return
+			this.level+=1;
+			this.currentDir = item;
 			this.breadList.push({
 				name: item.name,
 				id: item.id
 			})
-			if(item.id % 2 == 0) this.fileList = secondList;
-			if(item.id % 2 == 1) this.fileList = [];
+			// if(item.id % 2 == 0) this.fileList = secondList;
+			// if(item.id % 2 == 1) this.fileList = [];
+			// return
+			this.getDataList()
 		},
 		// 去到某一目录
 		handleBreadClick(item, index = 0) {
 			if((item.id != this.menuItem.id) && item.id == this.breadList[this.breadList.length - 1].id) return;
+			this.level = index + 2; // 在面包屑的基础上计算出当前的层级
 			this.getDataList();
-			this.fileList = firtList;
+			// this.fileList = firtList;
 			let i = this.breadList.length - index;
 			for(i; i > 0; i--) {
 				this.breadList.pop();
@@ -169,11 +184,26 @@ export default {
 		},
 		// 获取列表数据
 		getDataList() {
-			this.activeItem = {}
+			const id = this.currentDir.id;
+			this.$axios.post(this.$url.getList, { id }).then((res) => {
+          if(res.data.code == 0) {
+              this.fileList = res.data.result.map((item) => {
+                return {
+                  ...item,
+                  name: item.labelName
+                }
+              })
+          } else {
+              this.$Message.error('查询失败')
+          }
+      }).catch((err) => {
+          this.$Message.error('未知错误，联系管理员')
+      })
 		}
 	},
 	watch: {
 		menuItem(val) {
+			this.currentDir = val;
 			this.getDataList();
 		}
 	},
