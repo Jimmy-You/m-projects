@@ -35,7 +35,7 @@
 					@dblclick="handleGoDown(item)"
 				>
 					<div class="img">
-						<img  :src="item.type ? '/folder.png' : '/file.png'"/>
+						<img  :src="item.isDir == '1' ? '/folder.png' : '/file.png'"/>
 					</div>
 					<div class="name">
 						{{item.name}}
@@ -50,7 +50,7 @@
 			:parentId="level > 2 ? breadList[breadList.length - 1].id : menuItem.id"
 			:showModal="modalManage.add"
 			modalName="add"
-			:addTypeProp="fileList.length ? fileList[0].type == 1 ? '1' : '2' : ''"
+			:addTypeProp="fileList.length ? fileList[0].idDir == '1' ? '1' : '2' : ''"
 			@modalManage="modalManageMethod"
 		/>
 		<editProductModal
@@ -80,39 +80,7 @@ import addModal from './modals/addModal.vue'
 import editProductModal from './modals/editProductModal.vue'
 import editFolderModal from './modals/editFolderModal.vue'
 import deleteModal from './modals/deleteModal'
-const firtList = [
-	{ type: 1, name: '测试1', id: 1 },
-	{ type: 1, name: '测试2', id: 2 },
-	{ type: 1, name: '测试3', id: 3 },
-	{ type: 1, name: '测试4', id: 4 },
-	{ type: 1, name: '测试5', id: 5 },
-	{ type: 1, name: '测试6', id: 6 },
-	{ type: 1, name: '测试7', id: 7 },
-	{ type: 1, name: '测试8', id: 8 },
-	{ type: 1, name: '测试1', id: 11 },
-	{ type: 1, name: '测试2', id: 21 },
-	{ type: 1, name: '测试3', id: 31 },
-	{ type: 1, name: '测试4', id: 41 },
-	{ type: 1, name: '测试5', id: 51 },
-	{ type: 1, name: '测试6', id: 61 },
-	{ type: 1, name: '测试7', id: 71 },
-	{ type: 1, name: '测试8', id: 81 },
-	{ type: 1, name: '测试1', id: 111 },
-	{ type: 1, name: '测试2', id: 211 },
-	{ type: 1, name: '测试3', id: 311 },
-	{ type: 1, name: '测试4', id: 411 },
-	{ type: 1, name: '测试5', id: 511 },
-	{ type: 1, name: '测试6', id: 611 },
-	{ type: 1, name: '测试7', id: 711 },
-	{ type: 1, name: '测试8', id: 811 },
-	{ type: 1, name: '测试1', id: 111 },
-	{ type: 1, name: '测试2', id: 211 },
-	{ type: 1, name: '测试3', id: 311 },
-]
-const secondList = [
-	{ type: 0, name: '测试11', id: 9 },
-	{ type: 0, name: '测试22', id: 10 },
-]
+
 export default {
 	props: ['menuItem'],
 	components: {
@@ -152,7 +120,7 @@ export default {
 		},
 		// 展开下一层级
 		handleGoDown(item) {
-			if(!item.type) return; // 如果不是目录 则return
+			if(item.idDir != 1) return; // 如果不是目录 则return
 			this.level+=1;
 			this.currentDir = item;
 			this.breadList.push({
@@ -176,7 +144,7 @@ export default {
 			}
 		},
 		handleEdit() {
-			if(this.activeItem.type == 1) {
+			if(this.activeItem.isDir == 1) {
 				this.modalManageMethod('editFolder')
 			} else {
 				this.modalManageMethod('edit')
