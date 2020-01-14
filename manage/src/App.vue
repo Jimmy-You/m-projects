@@ -1,50 +1,53 @@
 <template>
   <div id="app">
-    <Layout>
-    <Header>
-      <div class="header">
-        后台管理系统
-      </div>
-    </Header>
-    <div class="content">
-      <Layout>
-          <Sider hide-trigger>
-            <div class="menu-item add-menu" @click="modalManageMethod('add')">
-              ++添加新项目++
-            </div>
-            <div
-              v-for="(item, index) in menuList"
-              :key="index"
-              class="menu-item"
-              @click="menuItemClick(item)"
-              :class="{'menu-item-active': activeItem.id == item.id}"
-              :title="item.name"
-            >
-              <div>{{item.name}}</div>
-              <div>
-                <img @click.stop="handleEdit(item)" src="./assets/edit.png" style="width: 22px;height:auto;margin-right:4px;"/>
-                <img @click.stop="handleDelete(item)" src="./assets/delete.png" style="width: 22px;height:auto;"/>
+    <Layout v-if="isLogin">
+      <Header>
+        <div class="header">
+          后台管理系统
+        </div>
+      </Header>
+      <div class="content">
+        <Layout>
+            <Sider hide-trigger>
+              <div class="menu-item add-menu" @click="modalManageMethod('add')">
+                ++添加新项目++
               </div>
-            </div>
-          </Sider>
-          <Content>
-            <mainContent
-              v-if="activeItem.id"
-              :menuItem="activeItem"
-            />
-          </Content>
-      </Layout>
-    </div>
+              <div
+                v-for="(item, index) in menuList"
+                :key="index"
+                class="menu-item"
+                @click="menuItemClick(item)"
+                :class="{'menu-item-active': activeItem.id == item.id}"
+                :title="item.name"
+              >
+                <div>{{item.name}}</div>
+                <div>
+                  <img @click.stop="handleEdit(item)" src="./assets/edit.png" style="width: 22px;height:auto;margin-right:4px;"/>
+                  <img @click.stop="handleDelete(item)" src="./assets/delete.png" style="width: 22px;height:auto;"/>
+                </div>
+              </div>
+            </Sider>
+            <Content>
+              <mainContent
+                v-if="activeItem.id"
+                :menuItem="activeItem"
+              />
+            </Content>
+        </Layout>
+      </div>
     </Layout>
+    <login v-else @handleLogin="handleLogin" />
     <addModal
 			:showModal="modalManage.add"
 			modalName="add"
       addTypeProp="1"
+      :isRoot="true"
+      @handleCreateOk="handleCreateOk"
 			@modalManage="modalManageMethod"
 		/>
     <deleteModal
 			:showModal="modalManage.delete"
-      :data="activeItem"
+      :data="currentClick"
 			modalName="delete"
 			@modalManage="modalManageMethod"
       @handleDeleteSuccess="getMenuList"
@@ -53,6 +56,7 @@
       :item="currentClick"
 			:showModal="modalManage.edit"
 			modalName="edit"
+       @handleCreateOk="handleCreateOk"
 			@modalManage="modalManageMethod"
 		/>
   </div>
@@ -63,6 +67,7 @@ import addModal from './components/modals/addModal.vue'
 import mainContent from './components/mainContent.vue'
 import deleteModal from './components/modals/deleteModal'
 import editFolderModal from './components/modals/editFolderModal'
+import login from './components/login'
 
 export default {
   name: 'app',
@@ -70,7 +75,8 @@ export default {
     mainContent,
     addModal,
     deleteModal,
-    editFolderModal
+    editFolderModal,
+    login
   },
   data() {
     return {
@@ -82,7 +88,11 @@ export default {
       menuList: [],
       activeItem: {},
       currentClick: {},
+      isLogin: window.sessionStorage.getItem('token'),
     }
+  },
+  computed: {
+    
   },
   methods: {
     modalManageMethod(name) {
@@ -94,18 +104,22 @@ export default {
     menuItemClick(item) {
       this.activeItem = item;
     },
+    handleCreateOk() {
+      this.getMenuList();
+    },
     getMenuList() {
       // 获取远程数据
       // this.activeItem = { id: 1, name: '项目1', };
       // return;
-      this.$axios.post(this.$url.getList, { id: -1 }).then((res) => {
+      this.$axios.get(this.$url.getList, { id: -1 }).then((res) => {
           if(res.data.code == 0) {
               this.menuList = res.data.result.map((item) => {
                 return {
                   ...item,
-                  name: item.labelName
+                  name: item.lableName
                 }
               })
+              console.log(this.menuList)
               this.activeItem = this.menuList[0] || {}
           } else {
               this.$Message.error('查询失败')
@@ -121,6 +135,9 @@ export default {
     handleDelete(item) {
       this.currentClick = item;
       this.modalManageMethod('delete')
+    },
+    handleLogin() {
+      this.isLogin = window.sessionStorage.getItem('token');
     }
   },
   mounted() {

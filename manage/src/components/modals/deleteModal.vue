@@ -15,15 +15,17 @@ export default {
     props: ['data'],
     methods: {
         handleModalConfirm() {
-            const url = this.data.isDir ? this.$url.delFolder : this.$url.delProduct
+            const url = this.data.isDir == '0' ? this.$url.delFolder : this.$url.delProduct
             this.$axios.post(url, {
                 id: this.data.id,
-                type: this.data.isDir ? 'dir' : 'pro'
+                type: this.data.isDir == '0' ? 'dir' : 'pro'
             }).then(res => {
                 if(res.data.code == 0) {
                     this.$Message.success('删除成功')
                     this.handleModalCancle();
                     this.$emit('handleDeleteSuccess')
+                } else {
+                    this.$Message.error(res.data.msg || '删除失败')
                 }
             })
         },

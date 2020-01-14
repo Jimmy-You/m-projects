@@ -8,54 +8,44 @@
         class="back-button"
         @click="backToList"
       >返回</Button>
-        钢筋008
+        {{item.name || '商品'}}
       </div>
     </Header>
     <div class="content">
       <Layout>
           <Content>
           <div style="height: 100%;overflow: auto;">
-            <Carousel autoplay loop class="m-carousel" v-if="id">
-              <CarouselItem>
+            <Carousel autoplay loop class="m-carousel" v-if="picList && picList.length">
+              <CarouselItem v-for="(item, index) in picList" :key="index">
                   <div class="carousel-item">
-                    <img src="/demo1.jpg" />
-                  </div>
-              </CarouselItem>
-              <CarouselItem>
-                  <div class="carousel-item">
-                    <img src="/demo2.jpg" />
+                    <img :src="item" />
                   </div>
               </CarouselItem>
           </Carousel>
           <div class="detail-desc">
-            <div class="price-num">
+            <div class="price-num" v-for="(item, index) in priceList" :key="index">
+              <div class="num">
+                <span>规格:{{item.name}}</span>
+              </div>
               <div class="price">
                 <span>￥</span>
-                <span style="font-size: 22px; ">1999.99元/吨</span>
-              </div>
-              <div class="num">
-                <span>库存: 19999</span>
+                <span style="font-size: 22px; ">{{item.value}}</span>
               </div>
             </div>
             <div>
               <Timeline class="m-timeline">
                 <TimelineItem>
                     <p class="time">商品名称</p>
-                    <p class="content">钢筋008</p>
+                    <p class="content">{{item.name || '商品'}}</p>
                 </TimelineItem>
                 <TimelineItem>
                     <p class="time">商品描述</p>
-                    <p class="content">008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋008号钢筋</p>
-                </TimelineItem>
-                <TimelineItem>
-                    <p class="time">其他描述</p>
-                    <p class="content">很好很好很好很好很好很好很好很好很好很好很好很好很好很好很好很好很好很好很好</p>
+                    <p class="content">{{item.productDesp || '暂无描述'}}</p>
                 </TimelineItem>
             </Timeline>
             </div>
           </div>
           </div>
-            
           </Content>
       </Layout>
     </div>
@@ -67,7 +57,7 @@
 
 export default {
   name: 'detail',
-  props: ['id'],
+  props: ['item'],
   components: {
   },
   data() {
@@ -77,10 +67,27 @@ export default {
       }
     }
   },
+  computed: {
+    picList() {
+      const item = this.item;
+      if(item.productPic) {
+        let originList = item.productPic.slice(item.productPic.indexOf('[') + 1, item.productPic.indexOf(']')).split(',')
+        return originList.map(f => {
+          return this.$imgPro + f.trim();
+        })
+      } else {
+        return [];
+      }
+    },
+    priceList() {
+      const priceListStr = this.item.productPrice || '[]';
+      return JSON.parse(priceListStr) || [];
+    }
+  },
   methods: {
     getDetail() {
       // 获取远程数据
-      this.detail = { name: '项目1', };
+      
     },
     backToList() {
       this.$emit('backClick')
@@ -89,10 +96,8 @@ export default {
   mounted() {
   },
   watch: {
-    id(val) {
-      this.detail = {}
-      // 添加loading状态
-      if(val) this.getDetail();
+    item(val) {
+      console.log('currentItem------', this.item)
     }
   }
 }

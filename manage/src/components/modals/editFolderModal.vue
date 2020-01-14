@@ -16,8 +16,11 @@
                     <Button icon="ios-cloud-upload-outline">上传</Button>
                 </Upload>
                 <div style="width: 150px;height: auto" class="flex" v-if="editForm.file">
-                    <img :src="editForm.file"  style="width: 80%;height: auto;" />
+                    <img :src="imgFol + editForm.file"  style="width: 80%;height: 100px;" />
                     <div style="cursor: pointer" @click="handleDeletePic">X</div>
+                </div>
+                <div style="width: 150px;height: auto" class="flex" v-if="fileUp">
+                    <span>{{fileUp.name}}&nbsp;&nbsp;</span><span style="pointer: cursor" @click="handleDeletePic">X</span>
                 </div>
             </FormItem>
         </Form>
@@ -30,37 +33,56 @@ export default {
     mixins: [mixins],
     data() {
         return {
+            imgFol: this.$imgFol,
+            fileUp: '',
             editForm: {
                 name: this.item.name,
-                file: this.item.picPath ? this.item.picPath[0] : '',
+                file: this.item.picPath ? this.item.picPath : '',
             }
+        }
+    },
+    watch: {
+        item(val) {
+            this.editForm = {
+                name: val.name,
+                file: val.picPath ? val.picPath : '',
+            }
+            this.fileUp = ''
         }
     },
     methods: {
         handleUpload(file) {
+            this.fileUp = file;
             this.editForm = {
                 ...this.editForm,
-                file
+                file: '',
             }
             return false;
         },
         handleDeletePic() {
-            this.editForm = {
-                ...this.editForm,
-                file: ''
+            if(this.fileUp) {
+                this.fileUp = ''
+            } else {
+                this.editForm = {
+                    ...this.editForm,
+                    file: ''
+                }
             }
         },
         handleModalConfirm() {
-            // baocun
-            const params = {
-                file: this.editForm.file,
-                id: this.item.id,
-                name: this.editForm.name || this.item.name,
-            }
-            this.$axios.post(this.$url.updateFolder, params, { 'Content-Type': 'multipart/form-data'}).then((res) => {
+            // if(this.level && !this.editForm.file) {
+            //     this.$Message.error('图片必传')
+            //     return;
+            // }
+            let formData = new FormData();
+            formData.append('id', this.item.id || '');
+            formData.append('name', this.editForm.name || this.item.name);
+            if(this.fileUp) formData.append('file', this.fileUp)
+            let header = { 'Content-Type': 'multipart/form-data'}
+            this.$axios.post(this.$url.updateFolder, formData, header).then((res) => {
                 if(res.data.code == 0) {
                     this.$Message.success('编辑成功')
-                    this.$emit('handleCreateOk');
+                    this.$emit('handleEditOk');
                 } else {
                     this.$Message.error('编辑失败')
                 }

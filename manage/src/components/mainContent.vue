@@ -6,7 +6,7 @@
 		</div>
 		<div class="bread">
 			<Breadcrumb>
-				<BreadcrumbItem class="pointer"><span @click="handleBreadClick(menuItem)">{{menuItem.name}}</span></BreadcrumbItem>
+				<BreadcrumbItem class="pointer"><span @click="handleBreadClick(menuItem, -1)">{{menuItem.name}}</span></BreadcrumbItem>
 				<BreadcrumbItem
 				 	class="pointer"
 					v-for="(item, index) in breadList"
@@ -35,7 +35,7 @@
 					@dblclick="handleGoDown(item)"
 				>
 					<div class="img">
-						<img  :src="item.isDir == '1' ? '/folder.png' : '/file.png'"/>
+						<img :src="getPicSrc(item)"/>
 					</div>
 					<div class="name">
 						{{item.name}}
@@ -50,14 +50,16 @@
 			:parentId="level > 2 ? breadList[breadList.length - 1].id : menuItem.id"
 			:showModal="modalManage.add"
 			modalName="add"
-			:addTypeProp="fileList.length ? fileList[0].idDir == '1' ? '1' : '2' : ''"
+			:addTypeProp="fileList.length ? fileList[0].isDir == '0' ? '1' : '2' : ''"
 			@modalManage="modalManageMethod"
+			@handleCreateOk="getDataList"
 		/>
 		<editProductModal
 			:item="activeItem"
 			:showModal="modalManage.edit"
 			:faItem="breadList[0] ? breadList[breadList.length - 1] : menuItem"
 			modalName="edit"
+			@handleUpdateOk="getDataList"
 			@modalManage="modalManageMethod"
 		/>
 		<editFolderModal
@@ -65,9 +67,11 @@
 			:level="level"
 			:showModal="modalManage.editFolder"
 			modalName="editFolder"
+			@handleEditOk="getDataList"
 			@modalManage="modalManageMethod"
 		/>
 		<deleteModal
+			:data="activeItem"
 			:showModal="modalManage.delete"
 			modalName="delete"
 			@modalManage="modalManageMethod"
@@ -91,8 +95,8 @@ export default {
 	},
 	data() {
 		return {
-			currentDir: {},
-			fileList: firtList,
+			currentDir: this.menuItem || {},
+			fileList: [],
 			activeItem: {}, // 当前选中的项目
 			level: 2, // 默认的展现目录层级
 			modalManage: {
@@ -104,8 +108,30 @@ export default {
 			breadList: [], // 面包屑数组
 		}
 	},
+	computed: {
+
+	},
 	methods: {
+		getPicSrc(item) {
+			if(item.isDir == '0') {
+				if(item.picPath) {
+					return `${this.$imgFol}${item.picPath}`
+				} else {
+					return '/folder.png'
+				}
+			} else {
+				if(item.productPic) {
+					let picList = item.productPic.slice(item.productPic.indexOf('[') + 1, item.productPic.indexOf(']')).split(',')
+					return `${this.$imgPro}${picList[0].trim()}`
+				} else {
+					return '/file.png'
+				}
+			}
+		},
 		modalManageMethod(name) {
+			if(name == 'add') {
+				this.activeItem = {}
+			}
 			this.modalManage = {
 				...this.modalManage,
 				[name]: !this.modalManage[name]
@@ -120,9 +146,10 @@ export default {
 		},
 		// 展开下一层级
 		handleGoDown(item) {
-			if(item.idDir != 1) return; // 如果不是目录 则return
+			if(item.isDir != '0') return; // 如果不是目录 则return
 			this.level+=1;
 			this.currentDir = item;
+			this.activeItem = {};
 			this.breadList.push({
 				name: item.name,
 				id: item.id
@@ -135,16 +162,17 @@ export default {
 		// 去到某一目录
 		handleBreadClick(item, index = 0) {
 			if((item.id != this.menuItem.id) && item.id == this.breadList[this.breadList.length - 1].id) return;
+			this.currentDir = item;
 			this.level = index + 2; // 在面包屑的基础上计算出当前的层级
 			this.getDataList();
 			// this.fileList = firtList;
-			let i = this.breadList.length - index;
+			let i = this.breadList.length - index - 1;
 			for(i; i > 0; i--) {
 				this.breadList.pop();
 			}
 		},
 		handleEdit() {
-			if(this.activeItem.isDir == 1) {
+			if(this.activeItem.isDir == '0') {
 				this.modalManageMethod('editFolder')
 			} else {
 				this.modalManageMethod('edit')
@@ -153,12 +181,13 @@ export default {
 		// 获取列表数据
 		getDataList() {
 			const id = this.currentDir.id;
-			this.$axios.post(this.$url.getList, { id }).then((res) => {
+			if(!id) return;
+			this.$axios.get(this.$url.getList, { id }).then((res) => {
           if(res.data.code == 0) {
               this.fileList = res.data.result.map((item) => {
                 return {
                   ...item,
-                  name: item.labelName
+                  name: item.lableName || item.productName
                 }
               })
           } else {
@@ -172,6 +201,10 @@ export default {
 	watch: {
 		menuItem(val) {
 			this.currentDir = val;
+			this.level = 2;
+			this.breadList = []
+			this.activeItem = {}
+			
 			this.getDataList();
 		}
 	},
@@ -217,7 +250,7 @@ export default {
 						justify-content: center;
 						img {
 							height: 160px;
-							width: auto;
+							width: 80%;
 						}
 					}
 					.name {

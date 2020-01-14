@@ -33,11 +33,20 @@
                     action="//jsonplaceholder.typicode.com/posts/"> 
                     <Button icon="ios-cloud-upload-outline">上传</Button>
                 </Upload>
+                <div>已有图片</div>
+                <template v-if="fileShow.length">
+                    <div style="width: 150px;display:inline-flex" v-for="(item, index) in fileShow" :key="index">
+                        <img :src="imgPro + item"  style="width: 80%;height: 100px;" />
+                        <div style="cursor: pointer" @click="handleDeletePic(item)">X</div>
+                    </div>
+                </template>
                 <div>
+                    <div>新上传图片</div>
                     <div v-for="item in file" :key="item.id" style="margin-right: 2px;">
                         <span>{{item.name}}&nbsp;&nbsp;</span><span style="pointer: cursor" @click="removeImage(item)">X</span>
                     </div>
                 </div>
+
             </FormItem>
         </Form>
     </Modal>
@@ -50,8 +59,17 @@ export default {
     mixins: [mixins],
     props: ['item', 'faItem'],
     data() {
+        let picList = [];
+        if(this.item.productPic) {
+            picList = this.item.productPic.slice(this.item.productPic.indexOf('[') + 1, this.item.productPic.indexOf(']')).split(',')
+        }
+        picList = picList.map(f => {
+                return f.trim();
+            })
         return {
-            file: this.item.picPath || [],
+            imgPro: this.$imgPro,
+            file: [],
+            fileShow: picList,
             editProductForm: {
                 name: this.item.name,
                 desc: this.item.desc,
@@ -59,6 +77,23 @@ export default {
             priceList: [{
                 name: '', value: '',
             }]
+        }
+    },
+    watch: {
+        item(val) {
+            this.editProductForm = {
+                name: val.productName,
+                desc: val.productDesp,
+            }
+            this.file = []
+            let picList = [];
+            if(this.item.productPic) {
+                picList = val.productPic.slice(val.productPic.indexOf('[') + 1, val.productPic.indexOf(']')).split(',')
+            }
+            this.fileShow = picList.map(f => {
+                return f.trim();
+            })
+            this.priceList = JSON.parse(val.productPrice || "[]")
         }
     },
     methods: {
@@ -83,6 +118,25 @@ export default {
                 this.file.splice(index, 1);
             }
         },
+        handleDeletePic(item) {
+            // 调用远程接口去删除数据
+            let params = {
+                id: this.item.id,
+                name: item,
+            }
+            this.$axios.get(this.$url.deletepic, params).then((res) => {
+                if(res.data.code == 0) {
+                    this.fileShow = this.fileShow.filter((chiItem) => {
+                        return chiItem != item;
+                    })
+                    this.$Message.success('删除成功')
+                } else {
+                    this.$Message.error('删除失败')
+                }
+            }).catch((err) => {
+                this.$Message.error('未知错误，联系管理员')
+            })
+        },
         handleUpload(file) {
             if(Array.isArray(file)) {
                 file.forEach((item) => {
@@ -99,18 +153,19 @@ export default {
         },
         handleModalConfirm() {
             // baocun
-            const params = {
-                files: this.file,
-                lable_id: this.faItem ? this.faItem.id : '',
-                product_id: this.item.id,
-                product_name: this.editProductForm.name || this.item.name,
-                product_price: this.priceList.join(','),
-                product_desp: this.editProductForm.desc,
-            }
-            this.$axios.post(this.$url.updateProduct, params, { 'Content-Type': 'multipart/form-data'}).then((res) => {
+            let formData = new FormData();
+            this.file.forEach((item) => {
+                formData.append('files', item);
+            })
+            formData.append('lable_id', this.item.lableId);
+            formData.append('product_name', this.editProductForm.name);
+            formData.append('product_price', JSON.stringify(this.priceList));
+            formData.append('product_desp', this.editProductForm.desc || '');
+            formData.append('product_id', this.item.id);
+            this.$axios.post(this.$url.updateProduct, formData, { 'Content-Type': 'multipart/form-data'}).then((res) => {
                 if(res.data.code == 0) {
                     this.$Message.success('编辑成功')
-                    this.$emit('handleCreateOk');
+                    this.$emit('handleUpdateOk');
                 } else {
                     this.$Message.error('编辑失败')
                 }

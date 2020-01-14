@@ -23,25 +23,46 @@
           <Content>
             <div class="secondWrapper">
               <div class="secondList"> <!-- 二级菜单  -->
-                <div class="second-list-item" v-for="(item, index) in menuList" :key="index">
-                  <div class="title">{{item.name}}</div>
-                  <div class="third-list"> <!-- 三级级菜单  -->
-                    <Row>
-                    <Col 
-                      span="8"
-                      v-for="(item, index) in menuList"
-                      :key="index"
-                    >
-                      <div class="third-list-item" @click="handleGoodClick(item)">
-                        <div class="preview">
-                          <img src="/default.png" />
-                        </div>
-                        <div class="good-name">{{item.name}}</div>
-                      </div>
-                    </Col>
-                    </Row>
+                <template v-if="rightList && rightList[0] && rightList[0].isDir == '0'">
+                  <div class="second-list-item" v-for="(item, index) in rightList" :key="index">
+                    <div class="title">{{item.name}}</div>
+                    <div class="third-list"> <!-- 三级级菜单  -->
+                      <Row>
+                      <template v-if="thirdListObj[item.id] && thirdListObj[item.id].length">
+                        <Col 
+                          span="8"
+                          v-for="(item, index) in thirdListObj[item.id]"
+                          :key="index"
+                        >
+                          <div class="third-list-item" @click="handleGoodClick(item)">
+                            <div class="preview">
+                              <img :src="getImage(item)" />
+                            </div>
+                            <div class="good-name">{{item.name}}</div>
+                          </div>
+                        </Col>
+                      </template>
+                      </Row>
+                    </div>
                   </div>
-                </div>
+                </template>
+                <template v-else>
+                  <!-- 直接是子产品的 -->
+                  <Row>
+                      <Col 
+                        span="8"
+                        v-for="(item, index) in rightList"
+                        :key="index"
+                      >
+                        <div class="third-list-item" @click="handleGoodClick(item)">
+                          <div class="preview">
+                            <img :src="getImage(item)" style="width: 80%;height: 1rem;"/>
+                          </div>
+                          <div class="good-name">{{item.name}}</div>
+                        </div>
+                      </Col>
+                    </Row>
+                </template>
               </div>
             </div>
           </Content>
@@ -59,14 +80,9 @@ export default {
   },
   data() {
     return {
-      menuList: [
-        { id: 1, name: '项目1', },
-        { id: 2, name: '项目2', },
-        { id: 3, name: '项目3', },
-        { id: 4, name: '项目4', },
-        { id: 5, name: '项目5', },
-        { id: 6, name: '项目6', },
-      ],
+      menuList: [],
+      rightList: [],
+      thirdListObj: {},
       activeItem: {},
     }
   },
@@ -74,12 +90,78 @@ export default {
     menuItemClick(item) {
       this.activeItem = item;
     },
+    getImage(item) {
+      if(item.productPic) {
+        let picList = item.productPic.slice(item.productPic.indexOf('[') + 1, item.productPic.indexOf(']')).split(',')
+        return `${this.$imgPro}${picList[0].trim()}`
+      } else {
+        return '/default.png'
+      }
+    },
     getMenuList() {
       // 获取远程数据
-      this.activeItem = { id: 1, name: '项目1', };
+      this.$axios.get(this.$url.getList, { id: -1 }).then((res) => {
+          if(res.data.code == 0) {
+              this.menuList = res.data.result.map((item) => {
+                return {
+                  ...item,
+                  name: item.lableName
+                }
+              })
+              this.activeItem = this.menuList[0] || {}
+          } else {
+              // this.$Message.error('查询失败')
+          }
+      }).catch((err) => {
+          // this.$Message.error('未知错误，联系管理员')
+      })
+    },
+    getRightList() {
+      this.$axios.get(this.$url.getList, { id: this.activeItem.id }).then((res) => {
+          if(res.data.code == 0) {
+              this.rightList = res.data.result.map((item) => {
+                if(item.isDir == '0') this.getThirdList(item);
+                return {
+                  ...item,
+                  name: item.lableName || item.productName
+                }
+              })
+          } else {
+              // this.$Message.error('查询失败')
+          }
+      }).catch((err) => {
+          // this.$Message.error('未知错误，联系管理员')
+      })
+    },
+    // 获取第三级菜单
+    getThirdList(faItem) {
+      const { id = '' } = faItem;
+      this.$axios.get(this.$url.getList, { id }).then((res) => {
+          if(res.data.code == 0) {
+              const list = res.data.result.map((item) => {
+                return {
+                  ...item,
+                  name: item.lableName || item.productName
+                }
+              })
+              this.thirdListObj = { ...this.thirdListObj, [id]: list };
+          } else {
+              // this.$Message.error('查询失败')
+              this.thirdListObj = { ...this.thirdListObj, [id]: [] };
+          }
+      }).catch((err) => {
+          // this.$Message.error('未知错误，联系管理员')
+      })
     },
     handleGoodClick(item) {
       this.$emit('goodClick', item);
+    }
+  },
+  watch: {
+    activeItem() {
+      this.rightList = [];
+      this.thirdListObj = {};
+      this.getRightList();
     }
   },
   mounted() {

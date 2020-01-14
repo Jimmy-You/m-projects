@@ -13,7 +13,7 @@
             <FormItem label="目录名称:">
                 <Input v-model="addFolderForm.name" placeholder=""></Input>
             </FormItem>
-            <FormItem label="预览图片:">
+            <FormItem label="预览图片:" v-if="!isRoot">
                 <Upload
                     :before-upload="handleUpload"
                     action="//jsonplaceholder.typicode.com/posts/"> 
@@ -70,7 +70,7 @@ let imgId = 0;
 
 export default {
     mixins: [mixins],
-    props: ['addTypeProp', 'level', 'parentId'],
+    props: ['addTypeProp', 'level', 'parentId', 'isRoot'],
     data() {
         return {
             file: [],
@@ -80,6 +80,11 @@ export default {
             priceList: [{
                 name: '', value: '',
             }]
+        }
+    },
+    watch: {
+        showModal() {
+            this.file = [];
         }
     },
     methods: {
@@ -119,29 +124,33 @@ export default {
             return false;
         },
         handleModalConfirm() {
-            let params = {}, addUrl = '';
-            if(this.addType == '1'){
+            let params = {}, addUrl = '', suffix = '';
+            let formData = new FormData();
+            if(this.level && !this.file.length) {
+                this.$Message.error('必须添加图片')
+                return;
+            }
+            if((this.addType == '1' && !this.addTypeProp) || this.addTypeProp == '1'){
                 // 添加目录 -- 添加根目录和添加普通目录
-                params = {
-                    file: this.level ? this.file[0] : '', // 图 根目录不需要
-                    level: this.level || '1',
-                    name: this.addFolderForm.name || '',
-                    lable_parentid: this.parentId || '-1',
-                }
+                if(this.level && this.file[0]) formData.append('file', this.file[0])
                 addUrl = this.$url.addFolder
+                formData.append('level', this.level || 1);
+                formData.append('name', this.addFolderForm.name || '');
+                formData.append('lable_parentid', this.parentId || '-1');
             } else {
                 // 添加产品
-                params = {
-                    files: this.file,
-                    lable_id: this.parentId,
-                    product_name: this.addProductForm.name,
-                    product_price: this.priceList.join(','),
-                    product_desp: this.addProductForm.desc,
-                    product_id: '-1'
-                }
-                addUrl = this.$url.addProduct
+                this.file.forEach((item) => {
+                    formData.append('files', item);
+                })
+                addUrl = this.$url.updateProduct
+                formData.append('lable_id', this.parentId);
+                formData.append('product_name', this.addProductForm.name);
+                formData.append('product_price', JSON.stringify(this.priceList));
+                formData.append('product_desp', this.addProductForm.desc || '');
+                formData.append('product_id', '-1');
             }
-            this.$axios.post(addUrl, params, { 'Content-Type': 'multipart/form-data'}).then((res) => {
+            let header = { 'Content-Type': 'multipart/form-data'}
+            this.$axios.post(addUrl, formData, header).then((res) => {
                     if(res.data.code == 0) {
                         this.$Message.success('添加成功')
                         this.$emit('handleCreateOk');

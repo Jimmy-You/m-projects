@@ -10,7 +10,7 @@
       <detail
         v-show="current"
         @backClick="changePage"
-        :id="currentItem.id"  
+        :item="currentItem"  
       />
     </transition>
   </div>
