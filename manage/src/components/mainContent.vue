@@ -19,7 +19,7 @@
 			<Row>
 				<Col span="3" class="col">
 					<div class="item-container add-container" @click="modalManageMethod('add')">
-						<img src="/add.png" />
+						<img src="../assets/add.png" />
 					</div>
 				</Col>
 				<Col
@@ -50,7 +50,7 @@
 			:parentId="level > 2 ? breadList[breadList.length - 1].id : menuItem.id"
 			:showModal="modalManage.add"
 			modalName="add"
-			:addTypeProp="fileList.length ? fileList[0].isDir == '0' ? '1' : '2' : ''"
+			:addTypeProp="getAddType"
 			@modalManage="modalManageMethod"
 			@handleCreateOk="getDataList"
 		/>
@@ -84,6 +84,8 @@ import addModal from './modals/addModal.vue'
 import editProductModal from './modals/editProductModal.vue'
 import editFolderModal from './modals/editFolderModal.vue'
 import deleteModal from './modals/deleteModal'
+import filePic from '../assets/file.png'
+import folderPic from '../assets/folder.png'
 
 export default {
 	props: ['menuItem'],
@@ -109,7 +111,13 @@ export default {
 		}
 	},
 	computed: {
-
+		getAddType() {
+			if(this.level >= 3) {
+				return '2'
+			} else {
+				return this.fileList.length ? this.fileList[0].isDir == '0' ? '1' : '2' : '';
+			}
+		}
 	},
 	methods: {
 		getPicSrc(item) {
@@ -117,14 +125,14 @@ export default {
 				if(item.picPath) {
 					return `${this.$imgFol}${item.picPath}`
 				} else {
-					return '/folder.png'
+					return folderPic
 				}
 			} else {
 				if(item.productPic) {
 					let picList = item.productPic.slice(item.productPic.indexOf('[') + 1, item.productPic.indexOf(']')).split(',')
 					return `${this.$imgPro}${picList[0].trim()}`
 				} else {
-					return '/file.png'
+					return filePic
 				}
 			}
 		},

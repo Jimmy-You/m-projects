@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import defaultImg from '../assets/default.png'
 
 export default {
   name: 'detail',
@@ -76,7 +77,7 @@ export default {
           return this.$imgPro + f.trim();
         })
       } else {
-        return [];
+        return [defaultImg];
       }
     },
     priceList() {
