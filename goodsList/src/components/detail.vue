@@ -15,10 +15,10 @@
       <Layout>
           <Content>
           <div style="height: 100%;overflow: auto;">
-            <Carousel autoplay loop class="m-carousel" v-if="picList && picList.length">
+            <Carousel autoplay loop class="m-carousel" v-if="picList && picList.length" ref="carousel">
               <CarouselItem v-for="(item, index) in picList" :key="index">
                   <div class="carousel-item">
-                    <img :src="item" />
+                    <img :src="item" style="" @load="handleResizeCarousel"/>
                   </div>
               </CarouselItem>
           </Carousel>
@@ -92,6 +92,11 @@ export default {
     },
     backToList() {
       this.$emit('backClick')
+    },
+    handleResizeCarousel() {
+      if(this.$refs.carousel && this.$refs.carousel.listWidth) {
+        this.$refs.carousel.handleResize();
+      }
     }
   },
   mounted() {
