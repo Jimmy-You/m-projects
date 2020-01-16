@@ -1,5 +1,6 @@
 // import API from '@/api/api'
 import axios from 'axios'
+import vm from './main';
 // import { Message, Spin } from 'view-design'
 //1.系统未登录之前的请求
 const status = {
@@ -23,12 +24,37 @@ const status = {
 // 创建axios实例
 const CancelToken = axios.CancelToken
 const service = axios.create()
+let axiosCount = 0;
+
+
+function changeGlobalLoading(flag) {
+	if(flag) {
+		vm.$Spin.show()
+	} else {
+		vm.$Spin.hide();
+	}
+}
+
+// 添加请求拦截器
+service.interceptors.request.use(function (config) {
+	// 在发送请求之前做些什么
+	if(axiosCount == 0) changeGlobalLoading(true)
+	axiosCount+=1;
+	return config;
+}, function (error) {
+	// 对请求错误做些什么
+	axiosCount-=1;
+	if(axiosCount == 0) changeGlobalLoading(false)
+	return Promise.reject(error);
+});
 
 // response 拦截器
 service.interceptors.response.use(
 	(response) => {
 		const { data, status, url } = response
 		// Spin.hide() // 不建议开启，因为界面不友好
+		axiosCount-=1;
+		if(axiosCount == 0) changeGlobalLoading(false)
 		return {
 			data,
 			status
@@ -36,7 +62,8 @@ service.interceptors.response.use(
 	},
 	(error) => {
 		// Spin.hide() // 不建议开启，因为界面不友好
-		Message.error(status[error.response.status])
+		axiosCount-=1;
+		if(axiosCount == 0) changeGlobalLoading(false)
 		return Promise.reject(error)
 	}
 )

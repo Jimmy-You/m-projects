@@ -3,19 +3,24 @@
 			<Layout v-if="isList">
 				<Header>
 					<div class="header">
-					<Button
+					<img
+						src="../assets/back.png"
+						class="back-button"
+						@click="backToList"
+					/>
+					<!-- <Button
 						size="small"
 						class="back-button"
 						@click="backToList"
-					>返回</Button>
-						产品列表
+					>返回</Button> -->
+						{{item.name || '产品列表'}}
 					</div>
 				</Header>
 				<div class="content">
 					<Layout>
 							<Content>
 								<div style="height: 100%;overflow: auto;">
-									<div class="productList">
+									<div v-if="productList.length" class="productList">
 										<div 
 											v-for="(item, index) in productList"
 											:key="index"
@@ -23,10 +28,10 @@
 											class="product-item"
 										>
 											<!-- 遍历出来的商品列表 -->
-											<img src="../assets/default.png" class="" />
+											<img :src="getImage(item)" class="" />
 											<div class="descrip">
 												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span>{{item.name || '--'}}</div>
-												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc('')}}</span></div>
+												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
 											</div>
 										</div>
 										<div 
@@ -36,10 +41,10 @@
 											class="product-item"
 										>
 											<!-- 遍历出来的商品列表 -->
-											<img src="../assets/default.png" class="" />
+											<img :src="getImage(item)" class="" />
 											<div class="descrip">
 												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span>{{item.name || '--'}}</div>
-												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc('')}}</span></div>
+												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
 											</div>
 										</div>
 										<div 
@@ -49,14 +54,21 @@
 											class="product-item"
 										>
 											<!-- 遍历出来的商品列表 -->
-											<img src="../assets/default.png" class="" />
+											<img :src="getImage(item)" class="" />
 											<div class="descrip">
 												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span>{{item.name || '--'}}</div>
-												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc('')}}</span></div>
+												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
 											</div>
 										</div>
 									</div>
-									
+									 <div v-else style="text-align: center;
+                color: #cbcbcb;
+    height: calc(100vh - 64px - .2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;">
+                  暂无数据
+                </div>
 								</div>
 							</Content>
 					</Layout>
@@ -73,6 +85,7 @@
 <script>
 import detail from './detail'
 import { cutByByte } from './stringUtil'
+import defaultImg from '../assets/default.png'
 
 export default {
 	props: ['item'],
@@ -87,9 +100,18 @@ export default {
 		}
 	},
 	methods: {
-		renderDesc(desc) {
-			let test = 'ceshi askjdkgjnaskldhjgiasjdkjgklasjdfiouasiohgkjasdfkhugjopasdujhiojasdfgjoipaujsdf';
-			return cutByByte(test, 200)
+		getImage(item) {
+      if(item.productPic) {
+        let picList = item.productPic.slice(item.productPic.indexOf('[') + 1, item.productPic.indexOf(']')).split(',')
+        return `${this.$imgPro}${picList[0].trim()}`
+      } else if(item.picPath) {
+        return `${this.$imgFol}${item.picPath}`
+      } else {
+        return defaultImg
+      }
+    },
+		renderDesc(desc = '') {
+			return cutByByte(desc, 200)
 		},
 		changePage(isDetail) {
 			this.isList = true;
@@ -187,6 +209,10 @@ export default {
 						width: 100%;
 						padding: .1rem;
 						color: #515a6e;
+						border-bottom: 1px solid #e8e8e8;
+						&:last-child {
+							border: none;
+						}
 						.name {
 
 						}

@@ -3,12 +3,12 @@
     <Layout>
     <Header>
       <div class="header">
-      <Button
-        size="small"
+      <img
+        src="../assets/back.png"
         class="back-button"
         @click="backToList"
-      >返回</Button>
-        {{item.name || '商品'}}
+      />
+        {{item.name || '产品'}}
       </div>
     </Header>
     <div class="content">
@@ -148,7 +148,7 @@ export default {
           overflow: hidden;
           .m-carousel {
             .ivu-carousel-track {
-              // width: 100%!important;
+              width: 100%!important;
             }
             .carousel-item {
               height: 3rem;
@@ -156,6 +156,13 @@ export default {
               justify-content: center;
               justify-content: center;
               background: #fafafa;
+              width: 100%!important;
+              .ivu-carousel-item {
+                width: 100%!important;
+              }
+              .carousel-item {
+                width: 100%!important;
+              }
               img {
                 height: 2.8rem;
                 width: auto;

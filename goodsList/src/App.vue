@@ -15,6 +15,9 @@
         @backClick="changePage('home')"
         :item="currentItem"  
       />
+      <div class="globalLoading" v-if="$data.globalLoading">
+
+      </div>
   </div>
 </template>
 
@@ -74,7 +77,7 @@ export default {
   },
   mounted() {
     this.getMenuList();
-  }
+  },
 }
 </script>
 
@@ -90,5 +93,14 @@ export default {
 }
 .fade-enter, .fade-leave-to {
   // opacity: 0;
+}
+.globalLoading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6)
 }
 </style>

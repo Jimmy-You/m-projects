@@ -41,6 +41,14 @@
                     </Row>
                   </div>
                 </template>
+                <div v-else style="text-align: center;
+                color: #cbcbcb;
+    height: calc(100vh - 64px - .2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;">
+                  暂无数据
+                </div>
               </div>
             </div>
           </Content>
