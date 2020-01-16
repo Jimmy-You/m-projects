@@ -1,45 +1,79 @@
 <template>
   <div id="app">
-    <transition name="fade">
       <list
-        v-show="!current"
+        v-show="current == 'home'"
         @goodClick="handleGoodClick"
+        :menuList="menuList"
       />
-    </transition>
-    <transition  name="fade">
       <detail
-        v-show="current"
-        @backClick="changePage"
+        v-show="current == 'detail'"
+        @backClick="changePage('home')"
         :item="currentItem"  
       />
-    </transition>
+      <midCom
+        v-show="current == 'list'"
+        @backClick="changePage('home')"
+        :item="currentItem"  
+      />
   </div>
 </template>
 
 <script>
 import list from './components/list.vue'
 import detail from './components/detail.vue'
+import midCom from './components/midCom.vue'
 
 export default {
   name: 'app',
   components: {
     list,
-    detail
+    detail,
+    midCom
   },
   data() {
     return {
-      current: false,
+      current: 'home',
       currentItem: {}, // 从list的点击事件里弹出
+      productList: [],
+      menuList: [], // 菜单列表
     }
   },
   methods: {
-    changePage() {
-      this.current = !this.current;
+    changePage(type) {
+      // 根据传来的东西的类型不同而改变
+      this.productList = [];
+      this.currentItem = {}
+      this.current = type;
     },
     handleGoodClick(item) {
-      this.changePage();
-      this.currentItem = item; // 当前要查看详情的项目
-    }
+      // 需要判断item的类型 可能是产品 也可能是二级菜单
+      if(item.isDir != '0') {
+        this.changePage('detail');
+      } else {
+        this.changePage('list');
+      }
+      this.currentItem = item; // 可能是当前产品 或者是二级菜单
+    },
+    getMenuList() {
+      // 获取远程数据
+      this.$axios.get(this.$url.getList, { id: -1 }).then((res) => {
+          if(res.data.code == 0) {
+              this.menuList = res.data.result.map((item) => {
+                return {
+                  ...item,
+                  name: item.lableName
+                }
+              })
+          } else {
+              // this.$Message.error('查询失败')
+          }
+      }).catch((err) => {
+          // this.$Message.error('未知错误，联系管理员')
+      })
+    },
+  },
+  mounted() {
+    this.getMenuList();
   }
 }
 </script>

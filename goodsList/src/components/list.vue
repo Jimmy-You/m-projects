@@ -23,32 +23,9 @@
           <Content>
             <div class="secondWrapper">
               <div class="secondList"> <!-- 二级菜单  -->
-                <template v-if="rightList && rightList[0] && rightList[0].isDir == '0'">
-                  <div class="second-list-item" v-for="(item, index) in rightList" :key="index">
-                    <div class="title">{{item.name}}</div>
-                    <div class="third-list"> <!-- 三级级菜单  -->
-                      <Row>
-                      <template v-if="thirdListObj[item.id] && thirdListObj[item.id].length">
-                        <Col 
-                          span="8"
-                          v-for="(item, index) in thirdListObj[item.id]"
-                          :key="index"
-                        >
-                          <div class="third-list-item" @click="handleGoodClick(item)">
-                            <div class="preview">
-                              <img :src="getImage(item)" />
-                            </div>
-                            <div class="good-name">{{item.name}}</div>
-                          </div>
-                        </Col>
-                      </template>
-                      </Row>
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <!-- 直接是子产品的 -->
-                  <Row>
+                <template v-if="rightList && rightList.length">
+                  <div class="third-list"> <!-- 三级级菜单  -->
+                    <Row>
                       <Col 
                         span="8"
                         v-for="(item, index) in rightList"
@@ -56,12 +33,13 @@
                       >
                         <div class="third-list-item" @click="handleGoodClick(item)">
                           <div class="preview">
-                            <img :src="getImage(item)" style="width: 80%;height: 1rem;"/>
+                            <img :src="getImage(item)" />
                           </div>
                           <div class="good-name">{{item.name}}</div>
                         </div>
                       </Col>
                     </Row>
+                  </div>
                 </template>
               </div>
             </div>
@@ -73,14 +51,15 @@
 </template>
 
 <script>
+import defaultImg from '../assets/default.png'
 
 export default {
   name: 'list',
+  props: ['menuList'],
   components: {
   },
   data() {
     return {
-      menuList: [],
       rightList: [],
       thirdListObj: {},
       activeItem: {},
@@ -94,33 +73,16 @@ export default {
       if(item.productPic) {
         let picList = item.productPic.slice(item.productPic.indexOf('[') + 1, item.productPic.indexOf(']')).split(',')
         return `${this.$imgPro}${picList[0].trim()}`
+      } else if(item.picPath) {
+        return `${this.$imgFol}${item.picPath}`
       } else {
-        return '/default.png'
+        return defaultImg
       }
-    },
-    getMenuList() {
-      // 获取远程数据
-      this.$axios.get(this.$url.getList, { id: -1 }).then((res) => {
-          if(res.data.code == 0) {
-              this.menuList = res.data.result.map((item) => {
-                return {
-                  ...item,
-                  name: item.lableName
-                }
-              })
-              this.activeItem = this.menuList[0] || {}
-          } else {
-              // this.$Message.error('查询失败')
-          }
-      }).catch((err) => {
-          // this.$Message.error('未知错误，联系管理员')
-      })
     },
     getRightList() {
       this.$axios.get(this.$url.getList, { id: this.activeItem.id }).then((res) => {
           if(res.data.code == 0) {
               this.rightList = res.data.result.map((item) => {
-                if(item.isDir == '0') this.getThirdList(item);
                 return {
                   ...item,
                   name: item.lableName || item.productName
@@ -134,25 +96,7 @@ export default {
       })
     },
     // 获取第三级菜单
-    getThirdList(faItem) {
-      const { id = '' } = faItem;
-      this.$axios.get(this.$url.getList, { id }).then((res) => {
-          if(res.data.code == 0) {
-              const list = res.data.result.map((item) => {
-                return {
-                  ...item,
-                  name: item.lableName || item.productName
-                }
-              })
-              this.thirdListObj = { ...this.thirdListObj, [id]: list };
-          } else {
-              // this.$Message.error('查询失败')
-              this.thirdListObj = { ...this.thirdListObj, [id]: [] };
-          }
-      }).catch((err) => {
-          // this.$Message.error('未知错误，联系管理员')
-      })
-    },
+    
     handleGoodClick(item) {
       this.$emit('goodClick', item);
     }
@@ -162,10 +106,14 @@ export default {
       this.rightList = [];
       this.thirdListObj = {};
       this.getRightList();
+    },
+    menuList(val) {
+      if(val && val[0]) {
+        this.activeItem = val[0];
+      }
     }
   },
   mounted() {
-    this.getMenuList()
   },
 }
 </script>
@@ -234,6 +182,27 @@ export default {
           overflow: hidden;
         }
       }
+      .third-list {
+        .third-list-item {
+          padding: .02rem;
+          text-align: center;
+          .preview {
+            width: 100%;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img {
+              width: 100%;
+              height: auto;
+              max-height: 1.25rem;
+            }
+            .good-name {
+
+            }
+          }
+        }
+      }
       .secondWrapper {
         padding: .1rem;
         height: 100%;
@@ -245,22 +214,7 @@ export default {
               font-size: .16rem;
               font-weight: bold;
             }
-            .third-list {
-              .third-list-item {
-                padding: .02rem;
-                text-align: center;
-                .preview {
-                  width: 100%;
-                  img {
-                    width: 100%;
-                    height: auto;
-                  }
-                  .good-name {
-
-                  }
-                }
-              }
-            }
+            
           }
         }
       }
