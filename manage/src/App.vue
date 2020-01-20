@@ -12,6 +12,13 @@
               <div class="menu-item add-menu" @click="modalManageMethod('add')">
                 ++添加新项目++
               </div>
+              <div class="menu-item">
+                <div>
+                  <Upload accept="image/*" action="//jsonplaceholder.typicode.com/posts/">
+                      <Button icon="ios-cloud-upload-outline">更新活动</Button>
+                  </Upload>
+                </div>
+              </div>
               <div
                 v-for="(item, index) in menuList"
                 :key="index"
