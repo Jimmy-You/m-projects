@@ -148,7 +148,7 @@ export default {
           overflow: hidden;
           .m-carousel {
             .ivu-carousel-track {
-              width: 100%!important;
+              // width: 100%!important;
             }
             .carousel-item {
               height: 3rem;

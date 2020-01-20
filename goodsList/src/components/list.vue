@@ -164,9 +164,12 @@ export default {
           min-width: 25%!important;
           flex: none!important;
           .menu-item {
+            align-items: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
             width: 100%;
             height: 0.46rem;
-            font-size: 0.18rem;
+            font-size: 12px;
             padding: 0.1rem;
             color: #323233;
             display: flex;

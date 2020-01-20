@@ -34,32 +34,6 @@
 												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
 											</div>
 										</div>
-										<div 
-											v-for="(item, index) in productList"
-											:key="index"
-											@click="handleShowProductDetail(item)"
-											class="product-item"
-										>
-											<!-- 遍历出来的商品列表 -->
-											<img :src="getImage(item)" class="" />
-											<div class="descrip">
-												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span>{{item.name || '--'}}</div>
-												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
-											</div>
-										</div>
-										<div 
-											v-for="(item, index) in productList"
-											:key="index"
-											@click="handleShowProductDetail(item)"
-											class="product-item"
-										>
-											<!-- 遍历出来的商品列表 -->
-											<img :src="getImage(item)" class="" />
-											<div class="descrip">
-												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span>{{item.name || '--'}}</div>
-												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
-											</div>
-										</div>
 									</div>
 									 <div v-else style="text-align: center;
                 color: #cbcbcb;
