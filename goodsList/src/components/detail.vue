@@ -94,7 +94,7 @@ export default {
       this.$emit('backClick')
     },
     handleResizeCarousel() {
-      if(this.$refs.carousel && this.$refs.carousel.listWidth) {
+      if(this.$refs.carousel) {
         this.$refs.carousel.handleResize();
       }
     }
