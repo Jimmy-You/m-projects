@@ -14,7 +14,7 @@
               </div>
               <div class="menu-item">
                 <div>
-                  <Upload accept="image/*" action="//jsonplaceholder.typicode.com/posts/">
+                  <Upload accept="image/*" :action="updateMainUrl" >
                       <Button icon="ios-cloud-upload-outline">更新活动</Button>
                   </Upload>
                 </div>
@@ -86,6 +86,7 @@ export default {
     login
   },
   data() {
+    const updateUrl = this.$url.updateMain
     return {
       modalManage: {
 				add: false,
@@ -96,6 +97,7 @@ export default {
       activeItem: {},
       currentClick: {},
       isLogin: window.sessionStorage.getItem('token'),
+      updateMainUrl: updateUrl
     }
   },
   computed: {

@@ -5,7 +5,7 @@ import 'view-design/dist/styles/iview.css';
 import axios from './http';
 
 const flag = process.env.NODE_ENV == 'production' ? true : false;
-const prefix = flag ? '' : 'http://192.168.1.30:8765';
+const prefix = flag ? '' : 'http://139.9.230.33/';
 const url = {
   addFolder: prefix + '/hdsm/lable/add', // 新建目录
   updateFolder: prefix + '/hdsm/lable/update', // 编辑目录
@@ -14,9 +14,10 @@ const url = {
   delProduct: prefix + '/hdsm/product/delete', // 删除产品
   getList: prefix + '/hdsm/lable/select', // 查询产品目录
   deletepic: prefix + '/hdsm/product/deletepic', // 删除图片
+  updateMain: prefix + '/hdsm/index/add', // 更新活动
 }
-const imgFol = flag ? '/pic/lable/' : 'http://192.168.1.30:8619/pic/lable/';
-const imgPro = flag ? '/pic/product/' : 'http://192.168.1.30:8619/pic/product/';
+const imgFol = flag ? '/pic/lable/' : 'http://139.9.230.33/pic/lable/';
+const imgPro = flag ? '/pic/product/' : 'http://139.9.230.33/pic/product/';
 
 Vue.prototype.$url = url;
 Vue.prototype.$axios = axios;

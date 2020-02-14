@@ -3,6 +3,7 @@
       <list
         v-show="current == 'home'"
         @goodClick="handleGoodClick"
+        @showSearchResult="showSearchResult"
         :menuList="menuList"
       />
       <detail
@@ -13,6 +14,7 @@
       <midCom
         v-show="current == 'list'"
         @backClick="changePage('home')"
+        :serachResult="serachResult"
         :item="currentItem"  
       />
       <div class="globalLoading" v-if="$data.globalLoading">
@@ -39,6 +41,7 @@ export default {
       currentItem: {}, // 从list的点击事件里弹出
       productList: [],
       menuList: [], // 菜单列表
+      serachResult: [],
     }
   },
   methods: {
@@ -48,6 +51,10 @@ export default {
       this.currentItem = {}
       this.current = type;
     },
+    showSearchResult(result = []) {
+      this.changePage('list')
+      this.serachResult = result;
+    },
     handleGoodClick(item) {
       // 需要判断item的类型 可能是产品 也可能是二级菜单
       if(item.isDir != '0') {
@@ -55,6 +62,7 @@ export default {
       } else {
         this.changePage('list');
       }
+      this.serachResult = [];
       this.currentItem = item; // 可能是当前产品 或者是二级菜单
     },
     getMenuList() {

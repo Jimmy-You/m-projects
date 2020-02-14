@@ -6,9 +6,19 @@
         产品列表
       </div>
     </Header>
+    <div class="search_input">
+      <Input search placeholder="搜您想要的产品" @on-search="handleSearchProduct" />
+    </div>
     <div class="content">
       <Layout>
           <Sider hide-trigger>
+            <div
+              class="menu-item"
+              :class="{'menu-item-active': activeItem.id == '-99'}"
+              @click="menuItemClick({ id: '-99', name: '活动' })"
+            >
+              <div>活动</div>
+            </div>
             <div
               v-for="(item, index) in menuList"
               :key="index"
@@ -22,7 +32,10 @@
           </Sider>
           <Content>
             <div class="secondWrapper">
-              <div class="secondList"> <!-- 二级菜单  -->
+              <div v-if="activeItem.id == '-99'">
+                <img :src="homePicUrl" style="width: 100%;height: auto;"/>
+              </div>
+              <div v-else class="secondList"> <!-- 二级菜单  -->
                 <template v-if="rightList && rightList.length">
                   <div class="third-list"> <!-- 三级级菜单  -->
                     <Row>
@@ -67,10 +80,12 @@ export default {
   components: {
   },
   data() {
+    let url = this.$url.homePic
     return {
       rightList: [],
       thirdListObj: {},
-      activeItem: {},
+      activeItem: { id: '-99', name: '活动' },
+      homePicUrl: url
     }
   },
   methods: {
@@ -107,6 +122,20 @@ export default {
     
     handleGoodClick(item) {
       this.$emit('goodClick', item);
+    },
+    // 搜索产品
+    handleSearchProduct(value) {
+      if(value) {
+        this.$axios.get(this.$url.search, { name : value }).then((res) => {
+          if(res.data.code == 0) {
+              this.$emit('showSearchResult', res.data.result)
+          } else {
+              // this.$Message.error('查询失败')
+          }
+      }).catch((err) => {
+          // this.$Message.error('未知错误，联系管理员')
+      })
+      }
     }
   },
   watch: {
@@ -117,7 +146,7 @@ export default {
     },
     menuList(val) {
       if(val && val[0]) {
-        this.activeItem = val[0];
+        // this.activeItem = val[0];
       }
     }
   },
@@ -129,17 +158,18 @@ export default {
 <style lang="less">
 .listWrapper {
   .header {
-    height: .6rem;
+    height: 64px;
     background: #ee0a24;
     color: #fff;
     box-shadow: 0 .02 .04px 0 rgba(0,0,0,.05);
     font-size: .24rem;
-    line-height: .6rem;
+    line-height: 64px;
     letter-spacing: .08rem;
     text-align: center;
     position: absolute;
     width: 100%;
     top: 0;
+    
   }
   .flex {
     display: flex;
@@ -153,7 +183,7 @@ export default {
     }
     .content {
       .ivu-layout {
-        height: calc(100vh - .6rem);
+        height: calc(100vh - 100px);
         .ivu-layout-sider {
           background: #fafafa;
           // border-right: 1px solid #cbcbcb;
@@ -229,6 +259,14 @@ export default {
           }
         }
       }
+    }
+  }
+  .search_input {
+    padding: 4px;
+    background: #ee0a24;
+    height: 40px;
+    .ivu-input {
+      border-radius: 20px;
     }
   }
 }
