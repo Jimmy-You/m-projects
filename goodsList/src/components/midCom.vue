@@ -19,7 +19,7 @@
 				<div class="content">
 					<Layout>
 							<Content>
-								<div style="height: 100%;overflow: auto;">
+								<div>
 									<div v-if="productList.length" class="productList">
 										<div 
 											v-for="(item, index) in productList"
@@ -30,14 +30,14 @@
 											<!-- 遍历出来的商品列表 -->
 											<img :src="getImage(item)" class="" />
 											<div class="descrip">
-												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span>{{item.name || item.productName || '--'}}</div>
-												<div class="desc">产品描述:&nbsp;&nbsp;<span style="color:#999">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
+												<div class="name" style="margin-bottom: .1rem;"><span class="">产品名称:&nbsp;&nbsp;</span><span style="font-weight: bold">{{item.name || item.productName || '--'}}</span></div>
+												<div class="desc">产品描述:&nbsp;&nbsp;<span style="font-weight: bold">{{renderDesc(item.productDesp) || '暂无说明'}}</span></div>
 											</div>
 										</div>
 									</div>
 									 <div v-else style="text-align: center;
                 color: #cbcbcb;
-    height: calc(100vh - 64px - .2rem);
+    height: calc(100vh - 64px - .2rem - 60px);
     display: flex;
     align-items: center;
     justify-content: center;">
@@ -85,7 +85,7 @@ export default {
       }
     },
 		renderDesc(desc = '') {
-			return cutByByte(desc, 200)
+			return cutByByte(desc, 120)
 		},
 		changePage(isDetail) {
 			this.isList = true;
@@ -120,8 +120,8 @@ export default {
     },
 	},
 	watch: {
-		item(val) {
-			if(val && !this.serachResult.length) {
+		item(val, old) {
+			if(val.id != old.id && !this.serachResult.length) {
 				this.getProductList();
 			}
 		},
@@ -153,11 +153,14 @@ export default {
     display: flex;
   }
   .ivu-layout {
-    height: 100vh;
+    height: calc(100vh - 60px);
     background:#fff!important;
     .ivu-layout-header {
       height: .6rem;
 			padding: 0;
+			position: fixed;
+			top: 0;
+			width: 100%;
 			.back-button {
         position: absolute;
         left: 5%;
@@ -167,12 +170,15 @@ export default {
     }
     .content {
       .ivu-layout {
-        height: calc(100vh - .6rem);
+				margin-top: .6rem;
+				
+        height: calc(100vh - .6rem - 60px);
         .ivu-layout-content {
-          overflow: hidden;
+          // overflow: hidden;
         }
 			}
 			.productList {
+				margin-bottom: 60px;
 				.product-item {
 					height: 1.5rem;
 					display: flex;

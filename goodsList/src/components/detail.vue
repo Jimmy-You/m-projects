@@ -8,7 +8,7 @@
         class="back-button"
         @click="backToList"
       />
-        {{item.name || '产品'}}
+        产品详情
       </div>
     </Header>
     <div class="content">
@@ -40,7 +40,7 @@
                 </TimelineItem>
                 <TimelineItem>
                     <p class="time">商品描述</p>
-                    <p class="content">{{item.productDesp || '暂无描述'}}</p>
+                    <p class="content" v-html="getDesc"></p>
                 </TimelineItem>
             </Timeline>
             </div>
@@ -83,6 +83,10 @@ export default {
     priceList() {
       const priceListStr = this.item.productPrice || '[]';
       return JSON.parse(priceListStr) || [];
+    },
+    getDesc() {
+      const desc = this.item.productDesp || '暂无描述'
+      return desc.replace(/\n/g,"<br>")
     }
   },
   methods: {
@@ -129,7 +133,7 @@ export default {
     display: flex;
   }
   .ivu-layout {
-    height: 100vh;
+    height: calc(100vh - 60px);
     background:#fff!important;
     .ivu-layout-header {
       height: .6rem;
@@ -143,7 +147,7 @@ export default {
     }
     .content {
       .ivu-layout {
-        height: calc(100vh - .6rem);
+        height: calc(100vh - .6rem - 60px);
         .ivu-layout-content {
           overflow: hidden;
           .m-carousel {
@@ -186,11 +190,12 @@ export default {
             .m-timeline {
               margin-top: .1rem;
               .time{
-                  font-size: 14px;
+                  font-size: 16px;
                   font-weight: bold;
               }
               .content{
                   padding-left: 5px;
+                  font-size: 18px;
               }
             }
           }

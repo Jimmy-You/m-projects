@@ -3,7 +3,7 @@
     <Layout>
     <Header>
       <div class="header">
-        产品列表
+        浩达商贸产品列表
       </div>
     </Header>
     <div class="search_input">
@@ -56,7 +56,7 @@
                 </template>
                 <div v-else style="text-align: center;
                 color: #cbcbcb;
-    height: calc(100vh - 64px - .2rem);
+    height: calc(100vh - 64px - .2rem - 60px);
     display: flex;
     align-items: center;
     justify-content: center;">
@@ -175,7 +175,7 @@ export default {
     display: flex;
   }
   .ivu-layout {
-    height: 100vh;
+    height: calc(100vh - 60px);
     background:#fff!important;
     .ivu-layout-header {
       height: .6rem;
@@ -183,7 +183,7 @@ export default {
     }
     .content {
       .ivu-layout {
-        height: calc(100vh - 100px);
+        height: calc(100vh - 100px - 60px);
         .ivu-layout-sider {
           background: #fafafa;
           // border-right: 1px solid #cbcbcb;
@@ -249,6 +249,7 @@ export default {
         height: 100%;
         overflow: auto;
         .secondList {
+          margin-bottom: 60px;
           .second-list-item {
             margin: .1rem 0;
             .title {

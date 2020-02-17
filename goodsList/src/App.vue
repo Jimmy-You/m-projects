@@ -20,6 +20,15 @@
       <div class="globalLoading" v-if="$data.globalLoading">
 
       </div>
+      <div class="brand">
+        <div class="brand_name">
+          浩达商贸
+        </div>
+        <div class="phone">
+          <p><img src="./assets/phone.png" />18681993941&nbsp;&nbsp;(微信同号)</p>
+          <p><img src="./assets/phone.png" />18182548466&nbsp;&nbsp;(微信同号)</p>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -110,5 +119,92 @@ export default {
   width: 100vw;
   height: 100vh;
   background: rgba(0,0,0,0.6)
+}
+.brand {
+  background: #efefda;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  color: #ee0a24;
+  font-size: 18px;
+  .brand_name {
+    display: inline-flex;
+    width: 25%;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+  }
+  @keyframes mymove
+  {
+    from {
+      transform:rotate(7deg);
+      -ms-transform:rotate(7deg); 	/* IE 9 */
+      -moz-transform:rotate(7deg); 	/* Firefox */
+      -webkit-transform:rotate(7deg); /* Safari 和 Chrome */
+      -o-transform:rotate(7deg);
+    }
+    to {
+      transform:rotate(-7deg);
+      -ms-transform:rotate(-7deg); 	/* IE 9 */
+      -moz-transform:rotate(-7deg); 	/* Firefox */
+      -webkit-transform:rotate(-7deg); /* Safari 和 Chrome */
+      -o-transform:rotate(-7deg);
+    }
+  }
+
+  @-moz-keyframes mymove /* Firefox */
+  {
+    from {
+      transform:rotate(7deg);
+      -ms-transform:rotate(7deg); 	/* IE 9 */
+      -moz-transform:rotate(7deg); 	/* Firefox */
+      -webkit-transform:rotate(7deg); /* Safari 和 Chrome */
+      -o-transform:rotate(7deg);
+    }
+    to {
+      transform:rotate(-7deg);
+      -ms-transform:rotate(-7deg); 	/* IE 9 */
+      -moz-transform:rotate(-7deg); 	/* Firefox */
+      -webkit-transform:rotate(-7deg); /* Safari 和 Chrome */
+      -o-transform:rotate(-7deg);
+    }
+  }
+
+  @-webkit-keyframes mymove /* Safari 和 Chrome */
+  {
+    from {
+      transform:rotate(7deg);
+      -ms-transform:rotate(7deg); 	/* IE 9 */
+      -moz-transform:rotate(7deg); 	/* Firefox */
+      -webkit-transform:rotate(7deg); /* Safari 和 Chrome */
+      -o-transform:rotate(7deg);
+    }
+    to {
+      transform:rotate(-7deg);
+      -ms-transform:rotate(-7deg); 	/* IE 9 */
+      -moz-transform:rotate(-7deg); 	/* Firefox */
+      -webkit-transform:rotate(-7deg); /* Safari 和 Chrome */
+      -o-transform:rotate(-7deg);
+    }
+  }
+  .phone {
+    display: inline-block;
+    width: 75%;
+    vertical-align: top;
+    height: 60px;
+    text-align: left;
+    p {
+      line-height: 30px;
+      display: flex;
+      align-items: center;
+      img {
+        width: 18px;
+        height: 18px;
+        margin: 0 10px;
+        animation:mymove .5s infinite linear;
+        -webkit-animation:mymove .5s infinite linear;
+      }
+    }
+  }
 }
 </style>
