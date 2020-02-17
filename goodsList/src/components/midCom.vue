@@ -85,7 +85,7 @@ export default {
       }
     },
 		renderDesc(desc = '') {
-			return cutByByte(desc, 120)
+			return cutByByte(desc, 100)
 		},
 		changePage(isDetail) {
 			this.isList = true;
@@ -116,6 +116,7 @@ export default {
 			this.isList = false;
 		},
 		backToList() {
+			this.productList = [];
       this.$emit('backClick')
     },
 	},

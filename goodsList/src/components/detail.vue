@@ -14,14 +14,19 @@
     <div class="content">
       <Layout>
           <Content>
-          <div style="height: 100%;overflow: auto;">
-            <Carousel autoplay loop class="m-carousel" v-if="picList && picList.length" ref="carousel">
-              <CarouselItem v-for="(item, index) in picList" :key="index">
-                  <div class="carousel-item">
-                    <img :src="item" style="" @load="handleResizeCarousel"/>
-                  </div>
-              </CarouselItem>
-          </Carousel>
+          <div style="height: 100%;overflow: auto;margin-bottom: 60px;">
+            <Carousel autoplay loop class="m-carousel" v-if="picList && picList.length > 1" ref="carousel">
+                <CarouselItem v-for="(item, index) in picList" :key="index">
+                    <div class="carousel-item">
+                      <img :src="item" style="" @load="handleResizeCarousel"/>
+                    </div>
+                </CarouselItem>
+            </Carousel>
+            <div v-else>
+              <div class="carousel-item">
+                <img style="width: 100%;height: auto;" :src="picList[0]" @load="handleResizeCarousel"/>
+              </div>
+            </div>
           <div class="detail-desc">
             <div class="price-num" v-for="(item, index) in priceList" :key="index">
               <div class="num">
@@ -116,18 +121,18 @@ export default {
 <style lang="less">
 .detailWrapper {
   .header {
-    height: .6rem;
+    height: 0.6rem;
     background: #ee0a24;
     color: #fff;
-    box-shadow: 0 .02 .04px 0 rgba(0,0,0,.05);
-    font-size: .24rem;
-    line-height: .6rem;
-    letter-spacing: .08rem;
+    -webkit-box-shadow: 0 0.02 0.04px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0.02 0.04px 0 rgba(0, 0, 0, 0.05);
+    font-size: 0.24rem;
+    line-height: 0.6rem;
+    letter-spacing: 0.08rem;
     text-align: center;
     position: absolute;
     width: 100%;
     top: 0;
-    position: relative;
   }
   .flex {
     display: flex;
@@ -136,8 +141,12 @@ export default {
     height: calc(100vh - 60px);
     background:#fff!important;
     .ivu-layout-header {
-      height: .6rem;
+      height: 0.6rem;
       padding: 0;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 99;
       .back-button {
         position: absolute;
         left: 5%;
@@ -149,7 +158,6 @@ export default {
       .ivu-layout {
         height: calc(100vh - .6rem - 60px);
         .ivu-layout-content {
-          overflow: hidden;
           .m-carousel {
             .ivu-carousel-track {
               // width: 100%!important;
