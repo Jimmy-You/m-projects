@@ -62,7 +62,7 @@ import { cutByByte } from './stringUtil'
 import defaultImg from '../assets/default.png'
 
 export default {
-	props: ['item', 'serachResult'],
+	props: ['item', 'serachResult', 'showType'],
 	components: {
 		detail
 	},
@@ -93,6 +93,7 @@ export default {
 		},
 		getProductList() {
 			// 获取产品列表
+			if(this.showType != 'list') return;
       const { id = '' } = this.item;
       this.$axios.get(this.$url.getList, { id }).then((res) => {
           if(res.data.code == 0) {

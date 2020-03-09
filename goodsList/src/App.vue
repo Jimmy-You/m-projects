@@ -15,7 +15,8 @@
         v-show="current == 'list'"
         @backClick="changePage('home')"
         :serachResult="serachResult"
-        :item="currentItem"  
+        :item="currentItem"
+        :showType="current"  
       />
       <div class="globalLoading" v-if="$data.globalLoading">
 

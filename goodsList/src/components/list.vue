@@ -139,7 +139,7 @@ export default {
     }
   },
   watch: {
-    activeItem() {
+    activeItem(newVal, old) {
       this.rightList = [];
       this.thirdListObj = {};
       this.getRightList();
